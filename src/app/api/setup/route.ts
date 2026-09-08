@@ -30,6 +30,26 @@ const SaveSetupSchema = z.object({
     .or(z.literal('').transform(() => undefined)),
 });
 
+async function canManageInstance(userId: string): Promise<boolean> {
+  const db = createServiceClient();
+  const { data, error } = await db
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (error) return false;
+  const role = data?.role as string | undefined;
+  return role === 'owner' || role === 'admin';
+}
+
+function forbidden(): Response {
+  return Response.json(
+    { error: 'Forbidden', message: 'Instance administrator access required' },
+    { status: 403 }
+  );
+}
+
 function cronSnippet(appUrl: string): string {
   return `-- Run this ONCE in your Supabase project's SQL Editor.
 -- It makes Supabase call your deployment every minute to process
@@ -53,6 +73,7 @@ select cron.schedule(
 export async function GET(request: Request): Promise<Response> {
   const user = await getAuthenticatedUser(request);
   if (!user) return unauthorized();
+  if (!(await canManageInstance(user.id))) return forbidden();
 
   const settings = await getMetaSettings();
   const appUrl = getAppUrl(request);
@@ -80,6 +101,7 @@ export async function GET(request: Request): Promise<Response> {
 export async function POST(request: Request): Promise<Response> {
   const user = await getAuthenticatedUser(request);
   if (!user) return unauthorized();
+  if (!(await canManageInstance(user.id))) return forbidden();
 
   let body: unknown;
   try {

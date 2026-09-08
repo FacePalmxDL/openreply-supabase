@@ -1,5 +1,5 @@
 /**
- * Next.js middleware.
+ * Next.js proxy.
  *  1. Refreshes the Supabase session cookie (required by @supabase/ssr).
  *  2. Protects app routes; redirects unauthenticated users to the login page.
  *
@@ -13,7 +13,7 @@ import { createServerClient } from '@supabase/ssr';
 const SUPABASE_URL = process.env['NEXT_PUBLIC_SUPABASE_URL']!;
 const SUPABASE_ANON_KEY = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY']!;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
