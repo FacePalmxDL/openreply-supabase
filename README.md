@@ -63,6 +63,8 @@ approved in days). The in-app Setup Wizard walks you through both stages.
 
 ## 🏗️ Architecture
 
+> This fork is evolving into a Supabase-first, multichannel platform with direct Meta integrations. See the [architecture and delivery roadmap](docs/ARCHITECTURE_SUPABASE.md).
+
 One Next.js app. No Redis, no worker servers, no message broker.
 
 ```
